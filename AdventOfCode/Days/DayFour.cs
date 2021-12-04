@@ -51,7 +51,6 @@ namespace AdventOfCode
         {
             for (int i = 0; i < input.Length; i++)
             {
-
                 Play(input[i]);
 
                 var lastWinner = RemoveWinners();
@@ -62,7 +61,6 @@ namespace AdventOfCode
                     return CalcAdventOfCodeResut(lastWinner.Value, input[i]);
                 }
             }
-
             throw new Exception("Invalid input");
         }
 
