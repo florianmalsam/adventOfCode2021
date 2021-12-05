@@ -2,4 +2,4 @@
 
 using AdventOfCode;
 
-Console.WriteLine( new DayFive().CalcPart1());
+Console.WriteLine( new DayFive().Calc());

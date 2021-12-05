@@ -11,8 +11,8 @@ namespace AdventOfCode
     /// </summary>
     internal class DayFive
     {
-        private readonly IEnumerable<Line> lines;
-        private readonly int[,] ground;
+        private readonly List<Line> lines;
+        private int[,] ground;
 
         public DayFive()
         {
@@ -27,10 +27,14 @@ namespace AdventOfCode
                     X = int.Parse(line.Split("->")[1].Split(',')[0].Trim()),
                     Y = int.Parse(line.Split("->")[1].Split(',')[1].Trim())
                 }
-            });
+            }).ToList();
 
-            // only horizontal and vertical lines
-            lines = lines.Where(line => line.Start.X == line.End.X || line.Start.Y == line.End.Y).ToList();
+            // only horizontal, vertical and 45° diagonal lines
+            lines = lines.Where(line => 
+                line.Start.X == line.End.X || line.Start.Y == line.End.Y ||
+                line.Start.X - line.End.X == line.End.Y - line.Start.Y ||
+                line.Start.X - line.End.X == line.Start.Y - line.End.Y
+            ).ToList();
 
             //switch start and end if line has "wrong" direction
             foreach (var line in lines) SwitchStartAndEndIfNeccesary(line);
@@ -43,12 +47,9 @@ namespace AdventOfCode
         /// draws all lines from the input and calculates the number of points where at least two lines overlap
         /// </summary>
         /// <returns>result in advent of code format</returns>
-        internal int CalcPart1()
+        internal int Calc()
         {
-            foreach (var line in lines)
-            {
-                DrawLine(line);
-            }
+            lines.ForEach(l => l.DrawLine(ref ground));
 
             return CalcOverlappingPoints();
         }
@@ -64,28 +65,9 @@ namespace AdventOfCode
             return sum;
         }
 
-        private void DrawLine(Line line)
-        {
-            if (line.Start.X == line.End.X)
-            {
-                // horizontal line
-                var lengthOfLine = Math.Abs(line.End.Y - line.Start.Y);
-                for (int i= 0; i <= lengthOfLine; i++)
-                    ground[line.Start.X, line.Start.Y + i ]++;
-            }
-
-            if (line.Start.Y == line.End.Y)
-            {
-                //vertical line
-                var lengthOfLine = Math.Abs(line.End.X - line.Start.X);
-                for (int i = 0; i <= lengthOfLine; i++)
-                    ground[line.Start.X + i, line.Start.Y]++;
-            }
-        }
-
         private static void SwitchStartAndEndIfNeccesary(Line line)
         {
-            if (line.End.Y - line.Start.Y < 0 || line.End.X - line.Start.X < 0)
+            if ((line.Direction == Direction.Horizontal && line.End.Y < line.Start.Y) || line.End.X < line.Start.X)
             {
                 var tmPoint = line.Start;
                 line.Start = line.End;
@@ -93,11 +75,50 @@ namespace AdventOfCode
             }
         }
 
-        record Line
+        private class Line
         {
+            public Direction Direction =>
+                Start.X == End.X ? Direction.Horizontal :
+                Start.Y == End.Y ? Direction.Vertical:
+                Start.Y > End.Y ? Direction.DiagonalNegative : Direction.DiagonalPositive;
+
+            public int Length => Direction == Direction.Vertical ? Math.Abs(End.X - Start.X) : Math.Abs(End.Y - Start.Y);
+
             public Point Start = new();
             public Point End = new();
 
+            public void DrawLine(ref int[,] ground)
+            {
+                if (Direction == Direction.Horizontal)
+                {
+                    for (int i = 0; i <= Length; i++)
+                        ground[Start.X, Start.Y + i]++;
+                }
+
+                if (Direction == Direction.Vertical)
+                {
+                    for (int i = 0; i <= Length; i++)
+                        ground[Start.X + i, Start.Y]++;
+                }
+
+                if(Direction == Direction.DiagonalPositive)
+                {
+                    for (int i = 0; i <= Length; i++)
+                        ground[Start.X + i, Start.Y + i]++;
+                }
+
+                if(Direction == Direction.DiagonalNegative)
+                {
+                    for (int i = 0; i <= Length; i++)
+                        ground[Start.X + i, Start.Y - i]++;
+                }
+            }
+
+        }
+
+        internal enum Direction
+        {
+            Horizontal, Vertical, DiagonalPositive, DiagonalNegative
         }
 
         record Point
