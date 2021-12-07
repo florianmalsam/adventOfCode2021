@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 namespace AdventOfCode
 {
     /// <summary>
-    /// https://adventofcode.com/2021/day/5
+    /// https://adventofcode.com/2021/day/6
     /// </summary>
     internal class DaySix
     {
-        //private readonly List<Lanternfish> fishes;
-
         private readonly long[] days = new long[9];
 
         public DaySix()
@@ -24,7 +22,7 @@ namespace AdventOfCode
         }
 
         /// <summary>
-        /// draws all lines from the input and calculates the number of points where at least two lines overlap
+        /// simulates fish reproduction
         /// </summary>
         /// <returns>result in advent of code format</returns>
         internal long Calc(int c)
